@@ -12,3 +12,5 @@ npm-debug.*
 web-build/
 .DS_Store
 *.log
+SETUP_GUIDE.md
+DEPLOYMENT_GUIDE.md
