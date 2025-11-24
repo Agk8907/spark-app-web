@@ -1,5 +1,4 @@
 node_modules/
-.env
 .expo/
 .expo-shared/
 dist/
@@ -13,3 +12,4 @@ npm-debug.*
 web-build/
 .DS_Store
 *.log
+.env

@@ -1,4 +1,4 @@
-# SocialFeedApp - Real-Time Social Media Application
+# Spark App - Real-Time Social Media Application
 
 A fully functional, production-ready social media application built with React Native (frontend) and Node.js/Express/MongoDB (backend), featuring real-time updates via Socket.io and cloud storage via Cloudinary.
 
@@ -62,7 +62,7 @@ npm install
 
 # Create .env file and configure
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/socialfeedapp
+MONGODB_URI=mongodb://localhost:27017/spark
 JWT_SECRET=your_secret_key_here
 JWT_EXPIRE=7d
 
@@ -85,7 +85,7 @@ Server will run on `http://localhost:5000`
 
 ```bash
 # Navigate to project root
-cd SocialFeedApp
+cd Spark
 
 # Install dependencies
 npm install
@@ -112,7 +112,7 @@ npm run android
 ## 📁 Project Structure
 
 ```
-SocialFeedApp/
+Spark/
 ├── server/                 # Backend server
 │   ├── config/            # Database and Cloud storage config
 │   ├── models/            # MongoDB models
@@ -205,9 +205,6 @@ The app features:
 ## 🚢 Deployment
 
 ### Backend
-
-Deploy to services like:
--Heroku, Railway, or Render
 
 - Make sure to set environment variables
 - Use MongoDB Atlas for production database
