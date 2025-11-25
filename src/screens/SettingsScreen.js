@@ -98,7 +98,11 @@ const SettingsScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background.secondary }]}>
-      <ScrollView>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <LinearGradient
           colors={theme.primary.gradient}
@@ -324,6 +328,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   // ... (keeping all existing styles, just appending new ones)
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: spacing.xxl * 2, // Extra padding at bottom to prevent cutoff
+  },
   
   // Modal Styles
   modalOverlay: {
