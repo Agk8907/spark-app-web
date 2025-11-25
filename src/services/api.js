@@ -1,14 +1,22 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Platform } from 'react-native';
-import { API_URL } from '@env';
-
 import Constants from 'expo-constants';
 
-// Smart URL detection
+// Import centralized API configuration
+import API_URL from '../config/api';
+
+// Smart URL detection for development and production
 const getBaseUrl = () => {
-  if (Platform.OS === 'web') return 'http://localhost:5000/api';
+  // In production mode (__DEV__ === false), use the production URL
+  if (!__DEV__) {
+    return `${API_URL}/api`;
+  }
+
+  // Development mode - smart detection based on platform
+  if (Platform.OS === 'web') {
+    return 'http://localhost:5000/api';
+  }
   
   // Dynamic IP detection for Expo Go on physical devices
   const debuggerHost = Constants.expoConfig?.hostUri;
@@ -17,13 +25,23 @@ const getBaseUrl = () => {
     return `http://${ip}:5000/api`;
   }
 
-  if (Platform.OS === 'android') return 'http://10.0.2.2:5000/api';
-  return API_URL || 'http://localhost:5000/api';
+  // Android emulator
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:5000/api';
+  }
+  
+  // iOS simulator fallback
+  return 'http://localhost:5000/api';
 };
 
 const BASE_URL = getBaseUrl();
 
-console.log('API Service Initialized with URL:', BASE_URL);
+// Only log in development mode
+if (__DEV__) {
+  console.log('🌐 API Service Initialized');
+  console.log('📡 Mode: Development');
+  console.log('🔗 URL:', BASE_URL);
+}
 
 // Create axios instance
 const api = axios.create({
@@ -43,27 +61,19 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error('API Error Response:', {
-        status: error.response.status,
-        data: error.response.data,
-        headers: error.response.headers,
-      });
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('API Error Request (No Response):', error.request);
-      console.error('API Error Request Details:', {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-      });
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('API Error Message:', error.message);
+    // Only log errors in development mode, and avoid sensitive data
+    if (__DEV__) {
+      if (error.response) {
+        // Server responded with error status
+        console.error('API Error:', error.response.status, error.response.data?.message || 'Unknown error');
+      } else if (error.request) {
+        // Request made but no response received
+        console.error('Network Error: No response from server');
+      } else {
+        // Error setting up the request
+        console.error('Request Error:', error.message);
+      }
     }
-    console.error('API Error Config:', error.config);
 
     return Promise.reject(error);
   }
@@ -92,13 +102,39 @@ export const authAPI = {
 // User endpoints
 export const userAPI = {
   getProfile: (id) => api.get(`/users/${id}`),
-  updateProfile: (id, data) => {
+  updateProfile: async (id, data) => {
     const formData = new FormData();
-    Object.keys(data).forEach(key => {
+    
+    for (const key of Object.keys(data)) {
       if (data[key] !== undefined) {
-        formData.append(key, data[key]);
+        if (key === 'avatar' && data[key]) {
+          // Handle avatar image upload
+          try {
+            if (Platform.OS === 'web') {
+              // Web: Convert blob URL to File object if it's a blob URI
+              if (data[key].uri && data[key].uri.startsWith('blob:')) {
+                const response = await fetch(data[key].uri);
+                const blob = await response.blob();
+                const filename = 'avatar.jpg';
+                const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+                formData.append('avatar', file);
+              } else {
+                // If it's not a blob URI (e.g. already a file or string), just append
+                formData.append('avatar', data[key]);
+              }
+            } else {
+              // Native: Append file object directly
+              formData.append('avatar', data[key]);
+            }
+          } catch (error) {
+            console.error('Error processing avatar:', error);
+          }
+        } else {
+          formData.append(key, data[key]);
+        }
       }
-    });
+    }
+
     return api.put(`/users/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

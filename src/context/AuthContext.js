@@ -89,14 +89,9 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
     } catch (err) {
-      console.error('Registration Error Full Object:', err);
-      if (err.response) {
-        console.error('Registration Error Response Data:', err.response.data);
-        console.error('Registration Error Status:', err.response.status);
-      } else if (err.request) {
-        console.error('Registration Error Request (No Response):', err.request);
-      } else {
-        console.error('Registration Error Message:', err.message);
+      // Error logged safely without exposing sensitive data
+      if (__DEV__) {
+        console.error('Registration failed:', err.message);
       }
       setError(err.message || 'Registration failed');
       return { success: false, error: err.message };

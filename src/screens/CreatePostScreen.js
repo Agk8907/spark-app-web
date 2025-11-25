@@ -71,9 +71,7 @@ const CreatePostScreen = ({ navigation }) => {
         image,
       };
 
-      console.log('Creating post:', postData);
       const result = await createPost(postData);
-      console.log('Create post result:', result);
 
       if (result.success) {
         // Close screen immediately after successful post

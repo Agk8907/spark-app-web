@@ -32,38 +32,29 @@ const RegisterScreen = ({ navigation }) => {
   const { register, loading } = useAuth();
   const { theme } = useTheme();
 
-  console.log('🎨 RegisterScreen Rendered. Loading:', loading);
-
   const handleRegister = async () => {
-    console.log('🔵 Register Button Pressed');
     setValidationError(''); // Clear previous errors
     const { username, name, email, password, confirmPassword } = formData;
-    console.log('📝 Form Data:', { username, name, email, password, confirmPassword });
 
     if (!username || !name || !email || !password || !confirmPassword) {
-      console.log('❌ Validation Failed: Missing fields');
       setValidationError('Please fill in all fields');
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      console.log('❌ Validation Failed: Passwords do not match');
       setValidationError('Passwords do not match');
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      console.log('❌ Validation Failed: Password too short (' + password.length + ' chars)');
       setValidationError('Password must be at least 6 characters');
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
 
-    console.log('🚀 Calling register API...');
     const result = await register({ username, name, email, password });
-    console.log('✅ Register API Result:', result);
     
     if (!result.success) {
       Alert.alert('Registration Failed', result.error || 'Please try again');

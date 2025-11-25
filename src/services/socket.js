@@ -1,15 +1,39 @@
 import io from 'socket.io-client';
-
 import { Platform } from 'react-native';
-import { SOCKET_URL } from '@env';
+import Constants from 'expo-constants';
 
-const getSocketUrl = () => {
-  if (Platform.OS === 'web') return 'http://localhost:5000';
-  if (Platform.OS === 'android') return 'http://10.0.2.2:5000';
-  return SOCKET_URL || 'http://localhost:5000';
+// Import the same API URL logic
+const getDevelopmentUrl = () => {
+  if (Platform.OS === 'web') {
+    return 'http://localhost:5000';
+  }
+  
+  // Dynamic IP detection for Expo Go on physical devices
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const ip = debuggerHost.split(':')[0];
+    return `http://${ip}:5000`;
+  }
+
+  // Android emulator
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:5000';
+  }
+  
+  // iOS simulator fallback
+  return 'http://localhost:5000';
 };
 
-const BASE_URL = getSocketUrl();
+// Production URL - matches your deployed Render backend
+const PRODUCTION_URL = 'https://spark-fn9t.onrender.com';
+
+// Automatically use development or production URL based on __DEV__
+const BASE_URL = __DEV__ ? getDevelopmentUrl() : PRODUCTION_URL;
+
+// Only log in development mode
+if (__DEV__) {
+  console.log('🔌 Socket URL:', BASE_URL);
+}
 
 class SocketService {
   socket = null;
@@ -22,14 +46,18 @@ class SocketService {
       });
 
       this.socket.on('connect', () => {
-        console.log('✅ Socket connected');
+        if (__DEV__) {
+          console.log('✅ Socket connected');
+        }
         if (userId) {
           this.socket.emit('user:online', userId);
         }
       });
 
       this.socket.on('disconnect', () => {
-        console.log('❌ Socket disconnected');
+        if (__DEV__) {
+          console.log('❌ Socket disconnected');
+        }
       });
     }
     return this.socket;

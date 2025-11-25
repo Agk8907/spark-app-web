@@ -1,15 +1,41 @@
+# Dependencies
 node_modules/
-.expo/
-.expo-shared/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production
+build/
 dist/
-npm-debug.*
+web-build/
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Expo
+.expo/
 *.jks
-*.p8
 *.p12
 *.key
-*.mobileprovision
-*.orig.*
-web-build/
-.DS_Store
-*.log
-.not/
+*.keystore
+
+# Android/IntelliJ
+android/app/build/
+android/.gradle/
+android/local.properties
+*.iml
+.idea/
+
+# iOS
+ios/Pods/
+ios/build/
