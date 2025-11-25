@@ -238,6 +238,19 @@ const ProfileScreen = ({ navigation }) => {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
+                  navigation.navigate('Settings');
+                }}
+              >
+                <Ionicons name="person-outline" size={20} color={theme.text.primary} />
+                <Text style={[styles.menuText, { color: theme.text.primary }]}>Edit Profile</Text>
+              </TouchableOpacity>
+
+              <View style={[styles.menuDivider, { backgroundColor: theme.background.tertiary }]} />
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
                   setAppearanceVisible(true);
                 }}
               >

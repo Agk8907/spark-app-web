@@ -7,7 +7,7 @@ import typography from '../theme/typography';
 import { spacing, borderRadius, shadows } from '../theme/spacing';
 import { useAuth } from '../context/AuthContext';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 import { getImageUrl } from '../utils/image';
 
@@ -247,6 +247,7 @@ const styles = StyleSheet.create({
   },
   postImage: {
     width: '100%',
+    maxHeight: height * 0.6, // Limit height to 60% of screen height
     // height is controlled by aspectRatio
   },
   actions: {

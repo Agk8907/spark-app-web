@@ -10,6 +10,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Animated,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -105,7 +106,11 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         {/* Header with Gradient */}
         <LinearGradient
           colors={theme.primary.gradient}
@@ -184,42 +189,27 @@ const UserProfileScreen = ({ route, navigation }) => {
         </View>
 
         {/* Posts Grid */}
+        {/* View Posts Button */}
         <View style={[styles.postsSection, { backgroundColor: theme.background.card }]}>
-          <View style={styles.postsSectionHeader}>
-            <Ionicons name="grid-outline" size={20} color={theme.primary.main} />
-            <Text style={[styles.postsSectionTitle, { color: theme.text.primary }]}>Posts</Text>
-          </View>
-
-          {userPosts.length > 0 ? (
-            <View style={styles.postsGrid}>
-              {userPosts.map((post) => (
-                <TouchableOpacity
-                  key={post._id || post.id}
-                  style={styles.gridItem}
-                  activeOpacity={0.8}
-                  onPress={() => navigation.navigate('PostDetails', { post })}
-                >
-                  {post.image ? (
-                    <Image
-                      source={{ uri: getImageUrl(post.image) }}
-                      style={styles.gridImage}
-                    />
-                  ) : (
-                    <View style={[styles.textPostPreview, { backgroundColor: theme.background.secondary }]}>
-                      <Text style={[styles.textPostContent, { color: theme.text.primary }]} numberOfLines={3}>
-                        {post.content}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : (
-            <View style={styles.noPostsContainer}>
-              <Ionicons name="images-outline" size={64} color={theme.text.secondary} />
-              <Text style={[styles.noPostsText, { color: theme.text.secondary }]}>No posts yet</Text>
-            </View>
-          )}
+          <TouchableOpacity
+            style={styles.viewPostsButton}
+            onPress={() => navigation.navigate('UserPosts', { userId, userName: userProfile.name })}
+          >
+            <LinearGradient
+              colors={theme.primary.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.viewPostsGradient}
+            >
+              <Ionicons name="grid-outline" size={20} color="#fff" />
+              <Text style={styles.viewPostsText}>View Posts</Text>
+              <View style={styles.badge}>
+                <Text style={[styles.badgeText, { color: theme.primary.main }]}>
+                  {userPosts.length}
+                </Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -229,6 +219,15 @@ const UserProfileScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...Platform.select({
+      web: {
+        height: '100vh',
+        overflow: 'hidden',
+      },
+      default: {
+        height: '100%',
+      },
+    }),
   },
   loadingContainer: {
     flex: 1,
@@ -335,50 +334,34 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     padding: spacing.lg,
   },
-  postsSectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    gap: spacing.xs,
-  },
-  postsSectionTitle: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
-  },
-  postsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -2,
-  },
-  gridItem: {
-    width: (width - spacing.lg * 2 - 4) / 3,
-    height: (width - spacing.lg * 2 - 4) / 3,
-    margin: 2,
-    borderRadius: borderRadius.sm,
+  viewPostsButton: {
+    borderRadius: borderRadius.lg,
     overflow: 'hidden',
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  gridImage: {
-    width: '100%',
-    height: '100%',
-  },
-  textPostPreview: {
-    width: '100%',
-    height: '100%',
-    padding: spacing.sm,
-    justifyContent: 'center',
-  },
-  textPostContent: {
-    fontSize: typography.sizes.xs,
-  },
-  noPostsContainer: {
+  viewPostsGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.xxl * 2,
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
   },
-  noPostsText: {
-    fontSize: typography.sizes.lg,
+  viewPostsText: {
+    color: '#fff',
+    fontSize: typography.sizes.md,
     fontWeight: typography.weights.semibold,
-    marginTop: spacing.md,
-    textAlign: 'center',
+  },
+  badge: {
+    backgroundColor: '#fff',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.full,
+    marginLeft: spacing.xs,
+  },
+  badgeText: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.bold,
   },
 });
 

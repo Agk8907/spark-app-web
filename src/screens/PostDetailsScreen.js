@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Text, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PostCard from '../components/PostCard';
 import { useTheme } from '../context/ThemeContext';
@@ -86,14 +86,26 @@ const PostDetailsScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: theme.background.card, borderBottomColor: theme.background.tertiary }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity 
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate('Feed');
+            }
+          }} 
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color={theme.text.primary} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text.primary }]}>Post</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView 
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+      >
         {post ? (
           <PostCard 
             post={post}
@@ -121,6 +133,15 @@ const PostDetailsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...Platform.select({
+      web: {
+        height: '100vh',
+        overflow: 'hidden',
+      },
+      default: {
+        height: '100%',
+      },
+    }),
   },
   header: {
     flexDirection: 'row',
@@ -137,7 +158,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   content: {
+    flexGrow: 1,
     paddingVertical: spacing.sm,
+    paddingBottom: 100,
   },
   loadingContainer: {
     flex: 1,

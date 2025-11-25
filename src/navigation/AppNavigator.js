@@ -19,6 +19,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import CreatePostScreen from '../screens/CreatePostScreen';
 import UserProfileScreen from '../screens/UserProfileScreen';
 import PostDetailsScreen from '../screens/PostDetailsScreen';
+import UserPostsScreen from '../screens/UserPostsScreen';
 
 // Context
 import { useAuth } from '../context/AuthContext';
@@ -124,6 +125,13 @@ const MainStack = () => (
         headerShown: false,
       }}
     />
+    <Stack.Screen
+      name="UserPosts"
+      component={UserPostsScreen}
+      options={{
+        headerShown: false,
+      }}
+    />
   </Stack.Navigator>
 );
 
@@ -153,7 +161,9 @@ const AppNavigator = () => {
             },
             Settings: 'settings',
             CreatePost: 'create-post',
+            CreatePost: 'create-post',
             UserProfile: 'user/:userId',
+            UserPosts: 'user/:userId/posts',
           },
         },
       }}
