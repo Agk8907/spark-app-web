@@ -9,6 +9,10 @@ import typography from '../theme/typography';
 const AppearanceSettings = () => {
   const { theme, themeMode, setThemeMode, accentColor, setAccentColor } = useTheme();
 
+  if (!theme || !theme.primary) {
+    return null;
+  }
+
   const modes = [
     { id: 'light', label: 'Light', icon: 'sunny' },
     { id: 'dark', label: 'Dark', icon: 'moon' },
@@ -32,12 +36,13 @@ const AppearanceSettings = () => {
       
       {/* Theme Mode Selector */}
       <View style={styles.modeContainer}>
-        {modes.map((mode) => (
+        {modes.map((mode, index) => (
           <TouchableOpacity
             key={mode.id}
             style={[
               styles.modeButton,
-              themeMode === mode.id && { backgroundColor: theme.primary.light + '20', borderColor: theme.primary.main }
+              themeMode === mode.id && { backgroundColor: theme.primary.light + '20', borderColor: theme.primary.main },
+              index !== modes.length - 1 && { marginRight: spacing.sm }
             ]}
             onPress={() => setThemeMode(mode.id)}
           >
@@ -100,7 +105,7 @@ const styles = StyleSheet.create({
   modeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: spacing.sm,
+    // gap replaced with child margins
   },
   modeButton: {
     flex: 1,
@@ -118,7 +123,7 @@ const styles = StyleSheet.create({
   },
   colorContainer: {
     paddingVertical: spacing.xs,
-    gap: spacing.md,
+    // gap replaced with child margins
   },
   colorButton: {
     width: 40,
@@ -126,7 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
   },
   selectedColor: {
     borderWidth: 3,

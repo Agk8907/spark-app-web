@@ -9,7 +9,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Modal,
+  TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
+import AppearanceSettings from '../components/AppearanceSettings';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -33,6 +37,11 @@ const ProfileScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [commentsVisible, setCommentsVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [appearanceVisible, setAppearanceVisible] = useState(false);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
+  const { logout } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -144,9 +153,9 @@ const ProfileScreen = ({ navigation }) => {
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.settingsButton}
-                onPress={() => navigation.navigate('Settings')}
+                onPress={() => setMenuVisible(true)}
               >
-                <Ionicons name="settings-outline" size={24} color="#fff" />
+                <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -214,6 +223,103 @@ const ProfileScreen = ({ navigation }) => {
         postId={selectedPostId}
         onClose={() => setCommentsVisible(false)}
       />
+
+      {/* Dropdown Menu Modal */}
+      <Modal
+        transparent={true}
+        visible={menuVisible}
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+          <View style={styles.menuOverlay}>
+            <View style={[styles.menuContainer, { backgroundColor: theme.background.card }]}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  setAppearanceVisible(true);
+                }}
+              >
+                <Ionicons name="color-palette-outline" size={20} color={theme.text.primary} />
+                <Text style={[styles.menuText, { color: theme.text.primary }]}>Appearance</Text>
+              </TouchableOpacity>
+              
+              <View style={[styles.menuDivider, { backgroundColor: theme.background.tertiary }]} />
+              
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  setLogoutModalVisible(true);
+                }}
+              >
+                <Ionicons name="log-out-outline" size={20} color={theme.status.error} />
+                <Text style={[styles.menuText, { color: theme.status.error }]}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* Appearance Settings Modal */}
+      <Modal
+        visible={appearanceVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setAppearanceVisible(false)}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: theme.background.secondary }]}>
+          <View style={[styles.modalHeader, { backgroundColor: theme.background.card }]}>
+            <Text style={[styles.modalHeaderTitle, { color: theme.text.primary }]}>Appearance</Text>
+            <TouchableOpacity onPress={() => setAppearanceVisible(false)} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color={theme.text.primary} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={styles.modalContent}>
+            <AppearanceSettings />
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {/* Logout Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={logoutModalVisible}
+        onRequestClose={() => setLogoutModalVisible(false)}
+      >
+        <View style={styles.logoutModalOverlay}>
+          <View style={[styles.logoutModalContent, { backgroundColor: theme.background.card }]}>
+            <View style={styles.logoutIconContainer}>
+              <Ionicons name="log-out" size={32} color={theme.status.error} />
+            </View>
+            <Text style={[styles.logoutTitle, { color: theme.text.primary }]}>Logout</Text>
+            <Text style={[styles.logoutMessage, { color: theme.text.secondary }]}>
+              Are you sure you want to log out?
+            </Text>
+            
+            <View style={styles.logoutButtons}>
+              <TouchableOpacity 
+                style={[styles.logoutCancelButton, { borderColor: theme.background.tertiary }]}
+                onPress={() => setLogoutModalVisible(false)}
+              >
+                <Text style={[styles.logoutCancelText, { color: theme.text.primary }]}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.logoutConfirmButton, { backgroundColor: theme.status.error }]}
+                onPress={() => {
+                  setLogoutModalVisible(false);
+                  logout();
+                }}
+              >
+                <Text style={styles.logoutConfirmText}>Yes, Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -324,6 +430,129 @@ const styles = StyleSheet.create({
   emptyStateSubtext: {
     fontSize: typography.sizes.md,
     marginTop: spacing.xs,
+  },
+  // Menu Styles
+  menuOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    right: 20,
+    borderRadius: borderRadius.md,
+    padding: spacing.xs,
+    minWidth: 180,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+      web: {
+        boxShadow: '0px 2px 8px rgba(0,0,0,0.15)',
+      },
+    }),
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  menuText: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.medium,
+    marginLeft: spacing.sm,
+  },
+  menuDivider: {
+    height: 1,
+    marginHorizontal: spacing.sm,
+  },
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  modalHeaderTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+  },
+  modalContent: {
+    padding: spacing.lg,
+  },
+  // Logout Modal Styles
+  logoutModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  logoutModalContent: {
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 340,
+    alignItems: 'center',
+  },
+  logoutIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FFF5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  logoutTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    marginBottom: spacing.xs,
+  },
+  logoutMessage: {
+    fontSize: typography.sizes.md,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+    lineHeight: 22,
+  },
+  logoutButtons: {
+    flexDirection: 'row',
+    width: '100%',
+    gap: spacing.md,
+  },
+  logoutCancelButton: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  logoutCancelText: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+  },
+  logoutConfirmButton: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+  },
+  logoutConfirmText: {
+    color: '#fff',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
 });
 
